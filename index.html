@@ -1,76 +1,529 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7Desafío - Servidor de Minecraft</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff4444, #ff8800, #ffcc00);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 4rem;
+            font-weight: bold;
+            text-shadow: 3px 3px 0px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+            background: linear-gradient(45deg, #ffcc00, #ff8800, #ff4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .server-info {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .server-info:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+
+        .server-ip {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            background: rgba(255,204,0,0.2);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 2px solid #ffcc00;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 20px rgba(255,204,0,0.5); }
+            to { box-shadow: 0 0 30px rgba(255,204,0,0.8); }
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .feature-card {
+            background: rgba(0,0,0,0.4);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ff4444, #ff8800, #ffcc00, #ff4444);
+            border-radius: 15px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            background: rgba(0,0,0,0.6);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #ffcc00;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            margin: 10px;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ffcc00;
+            display: block;
+            animation: countUp 2s ease-out;
+        }
+
+        .stat-label {
+            font-size: 1.2rem;
+            margin-top: 5px;
+        }
+
+        .join-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff4444, #ff8800);
+            color: white;
+            padding: 20px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            margin: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .join-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .join-button:hover::before {
+            left: 100%;
+        }
+
+        .join-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 50%;
+            animation: float 6s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 60px;
+        }
+
+        .reviews-section {
+            margin: 60px 0;
+        }
+
+        .reviews-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .review-card {
+            background: rgba(0,0,0,0.4);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,204,0,0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .review-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ffcc00, #ff8800, #ff4444, #ffcc00);
+            border-radius: 15px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .review-card:hover::before {
+            opacity: 0.7;
+        }
+
+        .review-card:hover {
+            transform: translateY(-5px);
+            background: rgba(0,0,0,0.6);
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .review-avatar {
+            font-size: 2.5rem;
+            margin-right: 15px;
+            background: rgba(255,204,0,0.2);
+            padding: 10px;
+            border-radius: 50%;
+            border: 2px solid #ffcc00;
+        }
+
+        .review-info {
+            flex: 1;
+        }
+
+        .review-name {
+            font-size: 1.3rem;
+            color: #ffcc00;
+            margin-bottom: 5px;
+        }
+
+        .review-stars {
+            font-size: 1.2rem;
+            color: #ffcc00;
+        }
+
+        .review-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #ffffff;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+            
+            .server-ip {
+                font-size: 1.5rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
 <body>
-    <header>
-        <h1>Página oficial del 7°B</h1>
-        <nav>
-            <ul>
-                <li><a href="#notas">Notas</a></li>
-                <li><a href="#noticias">Noticias</a></li>
-                <li><a href="#eventos">Eventos</a></li>
-            </ul>
-        </nav>
-    </header>
-    <main>
-        <section id="notas">
-            <h2>Notas</h2>
-            <p>Aquí se mostrarán todas las notas.</p>
-        </section>
-        <section id="noticias">
-            <h2>Noticias</h2>
-            <p>Aquí se mostrarán todas las noticias.</p>
-        </section>
-        <section id="eventos">
-            <h2>Eventos</h2>
-            <p>Aquí se mostrarán todos los eventos.</p>
-        </section>
-    </main>
-    <footer>
-        <p>Curso 7°B 2025<p>
-    </footer>
+    <div class="particles"></div>
+    
+    <div class="container">
+        <header>
+            <h1 class="logo">7DESAFÍO</h1>
+            <p class="subtitle">¡El servidor oficial del curso 7°B!</p>
+        </header>
+
+        <div class="server-info">
+            <h2>Conecta ahora:</h2>
+            <div class="server-ip" id="serverIp">7desafio.aternos.me</div>
+            <p>Versión: 1.25.x | Modalidad: Survival | Exclusivo para 7°B</p>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <span class="feature-icon">⚔️</span>
+                <h3 class="feature-title">PvP Épico</h3>
+                <p>Combates intensos y arenas personalizadas para demostrar tu habilidad</p>
+            </div>
+            
+            <div class="feature-card">
+                <span class="feature-icon">🏰</span>
+                <h3 class="feature-title">Construcciones</h3>
+                <p>Crea estructuras increíbles con nuestras herramientas avanzadas</p>
+            </div>
+            
+            <div class="feature-card">
+                <span class="feature-icon">💎</span>
+                <h3 class="feature-title">Economía</h3>
+                <p>Sistema de comercio y tiendas para hacer crecer tu imperio</p>
+            </div>
+            
+            <div class="feature-card">
+                <span class="feature-icon">🎯</span>
+                <h3 class="feature-title">Misiones</h3>
+                <p>Desafíos únicos y recompensas exclusivas te esperan</p>
+            </div>
+            
+            <div class="feature-card">
+                <span class="feature-icon">👥</span>
+                <h3 class="feature-title">Solo 7°B</h3>
+                <p>Exclusivo para nuestro curso, juega con tus compañeros de clase</p>
+            </div>
+            
+            <div class="feature-card">
+                <span class="feature-icon">🛡️</span>
+                <h3 class="feature-title">Protección</h3>
+                <p>Tus construcciones están seguras con nuestro sistema anti-grief</p>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-number" data-target="27">0</span>
+                <span class="stat-label">Compañeros de Clase</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" data-target="7">0</span>
+                <span class="stat-label">Desafíos Únicos</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" data-target="100">0</span>
+                <span class="stat-label">Horas de Diversión</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" data-target="24">0</span>
+                <span class="stat-label">Uptime (24/7)</span>
+            </div>
+        </div>
+
+        <div style="text-align: center;">
+            <a href="#" class="join-button" onclick="copyServerIP()">¡ÚNETE AHORA!</a>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 7Desafío Minecraft Server. ¡Aventura sin límites!</p>
+        </footer>
+    </div>
+
+    <script>
+        // Crear partículas flotantes
+        function createParticles() {
+            const particlesContainer = document.querySelector('.particles');
+            
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 4) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Animación de contadores
+        function animateCounters() {
+            const counters = document.querySelectorAll('.stat-number');
+            
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-target'));
+                const increment = target / 100;
+                let current = 0;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        counter.textContent = target;
+                        clearInterval(timer);
+                    } else {
+                        counter.textContent = Math.floor(current);
+                    }
+                }, 20);
+            });
+        }
+
+        // Copiar IP del servidor
+        function copyServerIP() {
+            const serverIP = '7desafio.minecraft.server';
+            navigator.clipboard.writeText(serverIP).then(() => {
+                alert('¡IP del servidor copiada al portapapeles!');
+            }).catch(() => {
+                // Fallback para navegadores que no soportan clipboard API
+                const textArea = document.createElement('textarea');
+                textArea.value = serverIP;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('¡IP del servidor copiada al portapapeles!');
+            });
+        }
+
+        // Efecto de paralaje en scroll
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const particles = document.querySelectorAll('.particle');
+            
+            particles.forEach((particle, index) => {
+                const speed = (index % 3 + 1) * 0.5;
+                particle.style.transform = `translateY(${scrolled * speed}px)`;
+            });
+        });
+
+        // Inicializar efectos
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            
+            // Animar contadores cuando sean visibles
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateCounters();
+                        observer.unobserve(entry.target);
+                    }
+                });
+            });
+            
+            const statsSection = document.querySelector('.stats');
+            observer.observe(statsSection);
+        });
+
+        // Efecto de click en las tarjetas
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+            });
+        });
+    </script>
 </body>
-
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #261e2e;
-    color: #333;
-}
-
-header {
-    background-color: #4a4a88;
-    color: white;
-    padding: 1rem;
-    text-align: center;
-}
-
-nav ul {
-    list-style: none;
-    padding: 0;
-}
-
-nav ul li {
-    display: inline;
-    margin: 0 15px;
-}
-
-nav ul li a {
-    color: white;
-    text-decoration: none;
-}
-
-section {
-    margin: 20px;
-    padding: 20px;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-}
-
-footer {
-    text-align: center;
-    padding: 10px;
-    background-color: #4a4a78;
-    color: white;
-}
-
-console.log('Página cargada exitosamente');
+</html>
